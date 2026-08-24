@@ -12,15 +12,32 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 const SPLASH_SEEN_KEY = 'tamkeen_splash_seen';
 
+// التصفح الخاص في Safari يمنع sessionStorage ويرمي استثناءً،
+// فنعزله حتى لا يُسقط التطبيق كاملاً.
+function safeSessionGet(key: string): string | null {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function safeSessionSet(key: string, value: string): void {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    /* تجاهل — العرض المتكرر لشاشة البداية أهون من تعطّل الموقع */
+  }
+}
+
 export default function App() {
   const location = useLocation();
   // تُعرض شاشة البداية مرة واحدة لكل جلسة تصفح
   const [showSplash, setShowSplash] = useState(
-    () => sessionStorage.getItem(SPLASH_SEEN_KEY) !== '1'
+    () => safeSessionGet(SPLASH_SEEN_KEY) !== '1'
   );
 
   useEffect(() => {
-    if (!showSplash) sessionStorage.setItem(SPLASH_SEEN_KEY, '1');
+    if (!showSplash) safeSessionSet(SPLASH_SEEN_KEY, '1');
   }, [showSplash]);
 
   if (showSplash) {
