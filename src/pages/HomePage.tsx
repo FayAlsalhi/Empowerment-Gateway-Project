@@ -165,8 +165,6 @@ export default function HomePage() {
                 <i /> بوابة تسجيل موحّدة
               </span>
               <h1 className="qt-h1 mt-4 text-primary">
-                ابدأ مسارك،
-                <br />
                 نُمكّن <span className="text-accent">طموحك</span> لنَبني القادم
               </h1>
               <p className="mt-5 max-w-lg text-[1.08rem] leading-relaxed text-muted-foreground">
