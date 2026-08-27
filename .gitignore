@@ -15,3 +15,6 @@ supabase/.temp
 # ملفات مؤقتة
 logo-base64.txt
 email-preview.html
+
+# نسخة البناء المضغوطة (تُولَّد محلياً)
+*.zip
