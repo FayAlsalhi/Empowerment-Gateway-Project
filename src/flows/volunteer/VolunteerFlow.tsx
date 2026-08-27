@@ -4,19 +4,25 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { FlowShell } from '@/components/FlowShell';
 import SuccessScreen from '@/components/SuccessScreen';
 import { useToast } from '@/components/ui/toast';
-import { checkDuplicate, submitProfile, SubmissionError } from '@/lib/submissions';
-import type { VolunteerPersonalInfoInput, VolunteerDetailsInput } from '@/schemas';
-import type { VolunteerPayload, VolunteerType } from '@/types';
-import PersonalInfoStep from './steps/PersonalInfoStep';
+import { submitProfile, SubmissionError } from '@/lib/submissions';
+import type { IdentityInput, VolunteerTypeInput, VolunteerDetailsInput, VolunteerLinksInput } from '@/schemas';
+import type { VolunteerPayload, ParticipationMode } from '@/types';
+import IdentityStep from './steps/IdentityStep';
+import VolunteerTypeStep from './steps/VolunteerTypeStep';
 import DetailsStep from './steps/DetailsStep';
+import LinksStep from './steps/LinksStep';
+import ReviewStep from './steps/ReviewStep';
 
-const STEP_TITLES = ['معلوماتك', 'نوع التطوع ومجالاته'];
+const STEP_TITLES = ['بياناتك', 'نوع التطوع', 'تفاصيل المساهمة', 'الروابط والملفات', 'مراجعة وإرسال'];
 
 interface VolunteerFlowData {
-  personal?: VolunteerPersonalInfoInput;
+  identity?: IdentityInput;
+  type?: VolunteerTypeInput;
   details?: VolunteerDetailsInput;
+  links?: VolunteerLinksInput;
 }
 
+/** مسار «التطوع» — حالة واحدة مجمّعة عبر 5 خطوات، لا فقدان للبيانات عند الرجوع. */
 export default function VolunteerFlow() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -41,59 +47,85 @@ export default function VolunteerFlow() {
     goTo(current - 1, -1);
   }, [current, navigate, goTo]);
 
-  const handlePersonalNext = useCallback(
-    async (values: VolunteerPersonalInfoInput) => {
-      const isDuplicate = await checkDuplicate(values.email, values.phone, 'volunteer');
-      if (isDuplicate) {
-        toast({
-          title: 'مسجّل مسبقاً',
-          description: 'يبدو أنك مسجّل مسبقاً بهذا البريد أو رقم الجوال في هذا المسار.',
-          variant: 'error',
-        });
-        return;
-      }
-      setData((prev) => ({ ...prev, personal: values }));
+  const handleIdentityNext = useCallback(
+    async (values: IdentityInput) => {
+      setData((prev) => ({ ...prev, identity: values }));
       goTo(1, 1);
     },
-    [toast, goTo]
+    [goTo]
   );
 
-  const handleDetailsSubmit = useCallback(
-    async (values: VolunteerDetailsInput) => {
-      const personal = data.personal;
-      if (!personal) return;
-      setData((prev) => ({ ...prev, details: values }));
-      setSubmitting(true);
-      const payload: VolunteerPayload = {
-        profile_type: 'volunteer',
-        full_name: personal.full_name,
-        email: personal.email,
-        phone: personal.phone,
-        city: personal.city,
-        region: personal.region,
-        bio: personal.bio || undefined,
-        professional_headline: '',
-        volunteer_type: values.volunteer_type as VolunteerType,
-        interests: values.interests,
-      };
-      try {
-        await submitProfile(payload);
-        setSubmitted(true);
-      } catch (err) {
-        if (err instanceof SubmissionError) {
-          toast({ title: 'تعذّر الإرسال', description: err.message, variant: 'error' });
-          if (err.code === 'DUPLICATE') {
-            goTo(0, -1);
-          }
-        } else {
-          toast({ title: 'تعذّر الإرسال', description: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.', variant: 'error' });
-        }
-      } finally {
-        setSubmitting(false);
-      }
+  const handleTypeNext = useCallback(
+    (values: VolunteerTypeInput) => {
+      setData((prev) => ({ ...prev, type: values }));
+      goTo(2, 1);
     },
-    [data.personal, toast, goTo]
+    [goTo]
   );
+
+  const handleDetailsNext = useCallback(
+    (values: VolunteerDetailsInput) => {
+      setData((prev) => ({ ...prev, details: values }));
+      goTo(3, 1);
+    },
+    [goTo]
+  );
+
+  const handleLinksNext = useCallback(
+    (values: VolunteerLinksInput) => {
+      setData((prev) => ({ ...prev, links: values }));
+      goTo(4, 1);
+    },
+    [goTo]
+  );
+
+  const handleEdit = useCallback(
+    (step: number) => {
+      goTo(step, -1);
+    },
+    [goTo]
+  );
+
+  const handleSubmit = useCallback(async () => {
+    const { identity, type, details, links } = data;
+    if (!identity || !type || !details || !links) return;
+
+    setSubmitting(true);
+    const payload: VolunteerPayload = {
+      profile_type: 'volunteer',
+      full_name: identity.full_name,
+      email: identity.email,
+      phone: identity.phone,
+      region: identity.region,
+      bio: identity.bio,
+      volunteer_types: type.volunteer_types,
+      specialization: details.specialization || undefined,
+      skills: details.skills,
+      years_of_experience: details.years_of_experience || undefined,
+      has_volunteered: details.has_volunteered ? details.has_volunteered === 'true' : undefined,
+      weekly_hours: details.weekly_hours || undefined,
+      availability_times: details.availability_times,
+      participation_mode: (details.participation_mode || undefined) as ParticipationMode | undefined,
+      what_can_offer: details.what_can_offer,
+      linkedin_url: links.linkedin_url,
+      cv_path: links.cv_path || undefined,
+      github_url: links.github_url || undefined,
+      personal_website_url: links.personal_website_url || undefined,
+    };
+
+    try {
+      await submitProfile(payload);
+      setSubmitted(true);
+    } catch (err) {
+      if (err instanceof SubmissionError) {
+        toast({ title: 'تعذّر الإرسال', description: err.message, variant: 'error' });
+      } else {
+        toast({ title: 'تعذّر الإرسال', description: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.', variant: 'error' });
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }, [data, toast]);
 
   if (submitted) {
     return <SuccessScreen profileType="volunteer" />;
@@ -110,13 +142,36 @@ export default function VolunteerFlow() {
     <FlowShell steps={STEP_TITLES} current={current} title={STEP_TITLES[current]} onBack={handleBack}>
       <AnimatePresence mode="wait" custom={direction} initial={false}>
         {current === 0 && (
-          <motion.div key="personal" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
-            <PersonalInfoStep defaultValues={data.personal} onNext={handlePersonalNext} />
+          <motion.div key="identity" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
+            <IdentityStep defaultValues={data.identity} onNext={handleIdentityNext} />
           </motion.div>
         )}
         {current === 1 && (
+          <motion.div key="type" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
+            <VolunteerTypeStep defaultValues={data.type} onNext={handleTypeNext} onBack={handleBack} />
+          </motion.div>
+        )}
+        {current === 2 && (
           <motion.div key="details" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
-            <DetailsStep defaultValues={data.details} onSubmit={handleDetailsSubmit} onBack={handleBack} submitting={submitting} />
+            <DetailsStep defaultValues={data.details} onNext={handleDetailsNext} onBack={handleBack} />
+          </motion.div>
+        )}
+        {current === 3 && (
+          <motion.div key="links" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
+            <LinksStep defaultValues={data.links} onNext={handleLinksNext} onBack={handleBack} />
+          </motion.div>
+        )}
+        {current === 4 && data.identity && data.type && data.details && data.links && (
+          <motion.div key="review" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
+            <ReviewStep
+              identity={data.identity}
+              type={data.type}
+              details={data.details}
+              links={data.links}
+              onEdit={handleEdit}
+              onSubmit={handleSubmit}
+              submitting={submitting}
+            />
           </motion.div>
         )}
       </AnimatePresence>

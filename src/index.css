@@ -2,43 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   نظام تصميم جمعية القصيم التقنية
+   القيم منقولة حرفياً من design-system.md المستخرج من الموقع الرسمي.
+   ============================================================================ */
+
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
+    /* --- ألوان الهوية الأصلية (HEX كما هي في الموقع) --- */
+    --qt-navy: #201a75;
+    --qt-navy2: #14104e;
+    --qt-cyan: #09b8cb;
+    --qt-cyan-soft: #eafbfe;
+    --qt-ink: #17192d;
+    --qt-muted: #6b7186;
+    --qt-line: #e7e9f1;
+    --qt-soft: #f6f7fb;
+    --qt-kicker: #087f90;
+    --qt-footer: #0f0d3e;
+
+    /* ألوان مستويات الباقات */
+    --qt-base: #555b78;
+    --qt-plus: #09b8cb;
+    --qt-pro: #6656d9;
+
+    /* --- نفس الألوان بصيغة HSL ليستهلكها Tailwind --- */
+    --background: 0 0% 100%;
+    --foreground: 235 32% 13%; /* --ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 235 32% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 235 32% 13%;
 
-    --primary: 201 96% 32%;
+    --primary: 244 64% 28%; /* --navy */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 228 38% 97%; /* --soft */
+    --secondary-foreground: 244 64% 28%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 228 38% 97%; /* --soft */
+    --muted-foreground: 227 11% 47%; /* --muted */
 
-    --accent: 168 84% 34%;
+    --accent: 186 92% 42%; /* --cyan */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
+    --success: 186 92% 35%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 201 96% 32%;
+    --border: 228 26% 93%; /* --line */
+    --input: 228 26% 93%;
+    --ring: 186 92% 42%; /* --cyan */
 
-    --radius: 0.75rem;
+    /* --- الزوايا (من قسم Border radius) --- */
+    --radius: 13px; /* الأزرار والشرائح */
+    --radius-card: 21px; /* البطاقات */
+    --radius-panel: 28px; /* اللوحات الكبيرة */
+
+    /* --- الظلال (من قسم Shadows) --- */
+    --shadow-soft: 0 20px 60px rgba(28, 26, 88, 0.09);
+    --shadow-showcase: 0 34px 80px rgba(27, 24, 91, 0.15);
+    --shadow-float: 0 12px 32px rgba(29, 26, 86, 0.1);
+
+    /* --- الحاوية (من قسم Containers) --- */
+    --container: min(1180px, calc(100% - 40px));
+  }
+
+  @media (max-width: 650px) {
+    :root {
+      --container: calc(100% - 24px);
+    }
+  }
+  @media (max-width: 390px) {
+    :root {
+      --container: calc(100% - 18px);
+    }
   }
 }
 
@@ -46,12 +91,123 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: 'ss01';
-  }
+
   html {
     scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'IBM Plex Sans Arabic', 'Cairo', Tahoma, Arial, sans-serif;
+    line-height: 1.8; /* الأساس الموثّق */
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    line-height: 1.3;
+    color: var(--qt-navy);
+  }
+}
+
+@layer components {
+  /* حاوية الموقع بنفس عرض التصميم الأصلي */
+  .qt-container {
+    width: var(--container);
+    margin-inline: auto;
+  }
+
+  /* أحجام العناوين السائلة كما هي موثّقة بـ clamp() */
+  .qt-h1 {
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+  .qt-h2 {
+    font-size: clamp(2rem, 3.4vw, 3.1rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  @media (max-width: 650px) {
+    .qt-h1 {
+      font-size: clamp(2.15rem, 11vw, 3.25rem);
+    }
+    .qt-h2 {
+      font-size: clamp(1.7rem, 8vw, 2.25rem);
+    }
+  }
+
+  /* تسمية علوية صغيرة (kicker/eyebrow) */
+  .qt-kicker {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--qt-kicker);
+  }
+
+  /* خلفية الهيرو: نفس التدرّجات الشعاعية الموثّقة */
+  .qt-hero-bg {
+    background:
+      radial-gradient(600px 330px at 8% 38%, rgba(9, 184, 203, 0.12), transparent 68%),
+      radial-gradient(500px 330px at 92% 88%, rgba(32, 26, 117, 0.07), transparent 70%),
+      #fff;
+  }
+
+  /* قسم كحلي كامل العرض */
+  .qt-navy-bg {
+    background: linear-gradient(135deg, var(--qt-navy), #30298e);
+  }
+
+  /* بطاقة الأثر / التدرّج الكحلي */
+  .qt-impact-bg {
+    background: linear-gradient(135deg, var(--qt-navy), #302894);
+  }
+
+  /* بطاقة البرنامج الفاتحة */
+  .qt-program-bg {
+    background: linear-gradient(135deg, #f0fdff, #f4f3ff);
+  }
+
+  /* شارة صغيرة (pill) بخلفية سماوية باهتة */
+  .qt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--qt-cyan-soft);
+    color: var(--qt-navy);
+    border-radius: 999px;
+    padding: 7px 15px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .qt-badge i {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--qt-cyan);
+    display: inline-block;
+  }
+
+  /* الهيدر اللاصق بنفس التمويه الموثّق */
+  .qt-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--qt-line);
+  }
+
+  /* رفعة العناصر عند التحويم */
+  .qt-lift {
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .qt-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
   }
 }
 
@@ -59,8 +215,13 @@
   .text-balance {
     text-wrap: balance;
   }
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-showcase {
+    box-shadow: var(--shadow-showcase);
+  }
+  .shadow-float {
+    box-shadow: var(--shadow-float);
   }
 }

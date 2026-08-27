@@ -12,7 +12,15 @@ const optionalUrl = (message: string) =>
     .or(z.literal(''))
     .refine((v) => !v || /^https?:\/\/.+\..+/.test(v), { message });
 
-/** رقم جوال سعودي: 05xxxxxxxx أو +9665xxxxxxxx أو 9665xxxxxxxx */
+/** LinkedIn إجباري في المسارات الثلاثة. */
+const requiredLinkedin = z
+  .string()
+  .trim()
+  .min(1, 'رابط LinkedIn مطلوب')
+  .refine((v) => /^https?:\/\/([\w-]+\.)?linkedin\.com\/.+/i.test(v), {
+    message: 'يرجى إدخال رابط LinkedIn صحيح (مثال: https://linkedin.com/in/username)',
+  });
+
 const phoneSchema = z
   .string()
   .trim()
@@ -21,11 +29,18 @@ const phoneSchema = z
     message: 'يرجى إدخال رقم جوال سعودي صحيح (مثال: 0512345678)',
   });
 
+const bioSchema = z
+  .string()
+  .trim()
+  .min(20, 'يرجى كتابة نبذة لا تقل عن 20 حرفاً')
+  .max(600, 'النبذة طويلة جداً (600 حرف كحد أقصى)');
+
 // ============================================================
-// الخطوة المشتركة: المعلومات الشخصية
+// الخطوة الأولى المشتركة: بياناتك
+// الاسم · البريد · الجوال · المنطقة · نبذة عنك
 // ============================================================
 
-export const personalInfoSchema = z.object({
+export const identitySchema = z.object({
   full_name: z
     .string()
     .trim()
@@ -37,96 +52,108 @@ export const personalInfoSchema = z.object({
     .min(1, 'البريد الإلكتروني مطلوب')
     .email('يرجى إدخال بريد إلكتروني صحيح'),
   phone: phoneSchema,
-  city: z.string().trim().min(2, 'المدينة مطلوبة'),
   region: z.string().min(1, 'يرجى اختيار المنطقة'),
-  bio: z
-    .string()
-    .trim()
-    .min(20, 'يرجى كتابة نبذة لا تقل عن 20 حرفاً')
-    .max(600, 'النبذة طويلة جداً (600 حرف كحد أقصى)'),
-  professional_headline: z
-    .string()
-    .trim()
-    .min(3, 'العنوان المهني مطلوب')
-    .max(120, 'العنوان المهني طويل جداً'),
+  bio: bioSchema,
 });
-export type PersonalInfoInput = z.infer<typeof personalInfoSchema>;
-
-/** نسخة المتطوع: النبذة والعنوان المهني اختياريان. */
-export const volunteerPersonalInfoSchema = personalInfoSchema.extend({
-  bio: z.string().trim().max(600, 'النبذة طويلة جداً').optional().or(z.literal('')),
-  professional_headline: z.string().trim().optional().or(z.literal('')),
-});
-export type VolunteerPersonalInfoInput = z.infer<typeof volunteerPersonalInfoSchema>;
+export type IdentityInput = z.infer<typeof identitySchema>;
 
 // ============================================================
-// الخطوة المشتركة: الروابط والملفات
+// المسار الأول: أبحث عن فرصة
+// بياناتك → التفاصيل المهنية → الروابط والملفات
 // ============================================================
 
-export const linksSchema = z.object({
-  linkedin_url: z
-    .string()
-    .trim()
-    .min(1, 'رابط LinkedIn مطلوب')
-    .refine((v) => /^https?:\/\/([\w-]+\.)?linkedin\.com\/.+/i.test(v), {
-      message: 'يرجى إدخال رابط LinkedIn صحيح (مثال: https://linkedin.com/in/username)',
-    }),
-  portfolio_url: optionalUrl('يرجى إدخال رابط صحيح لمعرض الأعمال'),
-  personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),
-  github_url: optionalUrl('يرجى إدخال رابط GitHub صحيح'),
-  cv_path: z.string().min(1, 'يرجى رفع السيرة الذاتية'),
-});
-export type LinksInput = z.infer<typeof linksSchema>;
-
-// ============================================================
-// مسار: أبحث عن فرصة
-// ============================================================
-
-export const seekerPreferencesSchema = z.object({
+export const seekerDetailsSchema = z.object({
   current_status: z.string().min(1, 'يرجى اختيار حالتك الحالية'),
+  specialization: z.string().trim().min(2, 'التخصص مطلوب'),
+  education_level: z.string().min(1, 'يرجى اختيار المؤهل العلمي'),
+  target_job_title: z.string().trim().min(2, 'المسمى الوظيفي المستهدف مطلوب'),
+  years_of_experience: z.string().min(1, 'يرجى اختيار سنوات الخبرة'),
   opportunity_preferences: z
     .array(z.string())
     .min(1, 'يرجى اختيار نوع فرصة واحد على الأقل'),
-  preferred_work_mode: z.string().min(1, 'يرجى اختيار نمط العمل المفضل'),
+  skills: z.array(z.string()).min(1, 'يرجى اختيار مهارة واحدة على الأقل'),
 });
-export type SeekerPreferencesInput = z.infer<typeof seekerPreferencesSchema>;
+export type SeekerDetailsInput = z.infer<typeof seekerDetailsSchema>;
+
+export const seekerLinksSchema = z.object({
+  cv_path: z.string().min(1, 'يرجى رفع السيرة الذاتية'),
+  linkedin_url: requiredLinkedin,
+  github_url: optionalUrl('يرجى إدخال رابط GitHub صحيح'),
+  personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),
+});
+export type SeekerLinksInput = z.infer<typeof seekerLinksSchema>;
 
 // ============================================================
-// مسار: أساهم بخبرتي
+// المسار الثاني: خبير / مستشار
+// بياناتك → البيانات المهنية → نوع المساهمة → الروابط والملفات
 // ============================================================
 
 export const expertProfessionalSchema = z.object({
-  current_job_title: z.string().trim().min(2, 'المسمى المهني الحالي مطلوب'),
-  current_organization: z.string().trim().optional().or(z.literal('')),
-  employment_status: z.string().min(1, 'يرجى اختيار الحالة الوظيفية'),
+  specialization: z.string().trim().min(2, 'التخصص مطلوب'),
+  current_job_title: z.string().trim().min(2, 'المسمى الوظيفي الحالي مطلوب'),
+  current_organization: z.string().trim().min(2, 'جهة العمل الحالية مطلوبة'),
   years_of_experience: z.string().min(1, 'يرجى اختيار سنوات الخبرة'),
   education_level: z.string().min(1, 'يرجى اختيار المؤهل العلمي'),
-  specialization: z.string().trim().min(2, 'التخصص مطلوب'),
+  skills: z.array(z.string()).min(1, 'يرجى اختيار مهارة واحدة على الأقل'),
 });
 export type ExpertProfessionalInput = z.infer<typeof expertProfessionalSchema>;
 
 export const expertContributionSchema = z.object({
-  participation_types: z
-    .array(z.string())
-    .min(1, 'يرجى اختيار نوع مشاركة واحد على الأقل'),
-  areas: z.array(z.string()).min(1, 'يرجى اختيار مجال واحد على الأقل'),
   contribution_types: z
     .array(z.string())
     .min(1, 'يرجى اختيار نوع مساهمة واحد على الأقل'),
-  target_audiences: z
-    .array(z.string())
-    .min(1, 'يرجى اختيار فئة مستهدفة واحدة على الأقل'),
-  delivery_mode: z.string().min(1, 'يرجى اختيار طريقة المشاركة'),
+  participation_mode: z.string().min(1, 'يرجى اختيار طريقة المشاركة'),
 });
 export type ExpertContributionInput = z.infer<typeof expertContributionSchema>;
 
+export const expertLinksSchema = z.object({
+  cv_path: z.string().min(1, 'يرجى رفع السيرة الذاتية'),
+  linkedin_url: requiredLinkedin,
+  personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),
+});
+export type ExpertLinksInput = z.infer<typeof expertLinksSchema>;
+
 // ============================================================
-// مسار: أتطوع
+// المسار الثالث: التطوع
+// بياناتك → نوع التطوع → تفاصيل المساهمة → الروابط والملفات
 // ============================================================
 
-export const volunteerDetailsSchema = z
-  .object({
-    volunteer_type: z.string().min(1, 'يرجى اختيار نوع التطوع'),
-    interests: z.array(z.string()).min(1, 'يرجى اختيار مجال واحد على الأقل'),
-  });
+export const volunteerTypeSchema = z.object({
+  volunteer_types: z.array(z.string()).min(1, 'يرجى اختيار نوع تطوع واحد على الأقل'),
+});
+export type VolunteerTypeInput = z.infer<typeof volunteerTypeSchema>;
+
+export const volunteerDetailsSchema = z.object({
+  specialization: z.string().trim().optional().or(z.literal('')),
+  skills: z.array(z.string()).min(1, 'يرجى اختيار مهارة واحدة على الأقل'),
+  years_of_experience: z.string().optional().or(z.literal('')),
+  has_volunteered: z.string().optional().or(z.literal('')),
+  weekly_hours: z.string().optional().or(z.literal('')),
+  availability_times: z.array(z.string()).default([]),
+  participation_mode: z.string().optional().or(z.literal('')),
+  what_can_offer: z
+    .string()
+    .trim()
+    .min(10, 'يرجى كتابة إجابة لا تقل عن 10 أحرف')
+    .max(300, 'الحد الأقصى 300 حرف'),
+});
 export type VolunteerDetailsInput = z.infer<typeof volunteerDetailsSchema>;
+
+/** في مسار التطوع: LinkedIn إجباري والسيرة الذاتية اختيارية. */
+export const volunteerLinksSchema = z.object({
+  linkedin_url: requiredLinkedin,
+  cv_path: z.string().optional().or(z.literal('')),
+  github_url: optionalUrl('يرجى إدخال رابط GitHub صحيح'),
+  personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),
+});
+export type VolunteerLinksInput = z.infer<typeof volunteerLinksSchema>;
+
+// ============================================================
+// دخول لوحة الإدارة
+// ============================================================
+
+export const adminLoginSchema = z.object({
+  email: z.string().trim().min(1, 'البريد الإلكتروني مطلوب').email('بريد إلكتروني غير صحيح'),
+  password: z.string().min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
+});
+export type AdminLoginInput = z.infer<typeof adminLoginSchema>;

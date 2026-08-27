@@ -4,22 +4,23 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { FlowShell } from '@/components/FlowShell';
 import SuccessScreen from '@/components/SuccessScreen';
 import { useToast } from '@/components/ui/toast';
-import { checkDuplicate, submitProfile, SubmissionError } from '@/lib/submissions';
-import type { PersonalInfoInput, SeekerPreferencesInput, LinksInput } from '@/schemas';
-import type { OpportunitySeekerPayload, WorkMode } from '@/types';
-import PersonalInfoStep from './steps/PersonalInfoStep';
-import PreferencesStep from './steps/PreferencesStep';
+import { submitProfile, SubmissionError } from '@/lib/submissions';
+import type { IdentityInput, SeekerDetailsInput, SeekerLinksInput } from '@/schemas';
+import type { SeekerPayload } from '@/types';
+import IdentityStep from './steps/IdentityStep';
+import ProfessionalDetailsStep from './steps/ProfessionalDetailsStep';
 import LinksStep from './steps/LinksStep';
 import ReviewStep from './steps/ReviewStep';
 
-const STEP_TITLES = ['معلوماتك', 'ما الذي تبحث عنه؟', 'روابطك وملفاتك', 'مراجعة وإرسال'];
+const STEP_TITLES = ['بياناتك', 'التفاصيل المهنية', 'الروابط والملفات', 'مراجعة وإرسال'];
 
 interface SeekerFlowData {
-  personal?: PersonalInfoInput;
-  preferences?: SeekerPreferencesInput;
-  links?: LinksInput;
+  identity?: IdentityInput;
+  details?: SeekerDetailsInput;
+  links?: SeekerLinksInput;
 }
 
+/** مسار «أبحث عن فرصة» — حالة واحدة مجمّعة عبر 4 خطوات، لا فقدان للبيانات عند الرجوع. */
 export default function SeekerFlow() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -44,33 +45,24 @@ export default function SeekerFlow() {
     goTo(current - 1, -1);
   }, [current, navigate, goTo]);
 
-  const handlePersonalNext = useCallback(
-    async (values: PersonalInfoInput) => {
-      const isDuplicate = await checkDuplicate(values.email, values.phone, 'opportunity_seeker');
-      if (isDuplicate) {
-        toast({
-          title: 'مسجّل مسبقاً',
-          description: 'يبدو أنك مسجّل مسبقاً بهذا البريد أو رقم الجوال في هذا المسار.',
-          variant: 'error',
-        });
-        return;
-      }
-      setData((prev) => ({ ...prev, personal: values }));
+  const handleIdentityNext = useCallback(
+    async (values: IdentityInput) => {
+      setData((prev) => ({ ...prev, identity: values }));
       goTo(1, 1);
     },
     [toast, goTo]
   );
 
-  const handlePreferencesNext = useCallback(
-    (values: SeekerPreferencesInput) => {
-      setData((prev) => ({ ...prev, preferences: values }));
+  const handleDetailsNext = useCallback(
+    (values: SeekerDetailsInput) => {
+      setData((prev) => ({ ...prev, details: values }));
       goTo(2, 1);
     },
     [goTo]
   );
 
   const handleLinksNext = useCallback(
-    (values: LinksInput) => {
+    (values: SeekerLinksInput) => {
       setData((prev) => ({ ...prev, links: values }));
       goTo(3, 1);
     },
@@ -85,19 +77,26 @@ export default function SeekerFlow() {
   );
 
   const handleSubmit = useCallback(async () => {
-    if (!data.personal || !data.preferences || !data.links) return;
+    if (!data.identity || !data.details || !data.links) return;
     setSubmitting(true);
-    const payload: OpportunitySeekerPayload = {
+    const payload: SeekerPayload = {
       profile_type: 'opportunity_seeker',
-      ...data.personal,
-      current_status: data.preferences.current_status,
-      opportunity_preferences: data.preferences.opportunity_preferences,
-      preferred_work_mode: data.preferences.preferred_work_mode as WorkMode,
-      linkedin_url: data.links.linkedin_url,
-      portfolio_url: data.links.portfolio_url,
-      personal_website_url: data.links.personal_website_url,
-      github_url: data.links.github_url,
+      full_name: data.identity.full_name,
+      email: data.identity.email,
+      phone: data.identity.phone,
+      region: data.identity.region,
+      bio: data.identity.bio,
+      current_status: data.details.current_status,
+      specialization: data.details.specialization,
+      education_level: data.details.education_level,
+      target_job_title: data.details.target_job_title,
+      years_of_experience: data.details.years_of_experience,
+      opportunity_preferences: data.details.opportunity_preferences,
+      skills: data.details.skills,
       cv_path: data.links.cv_path,
+      linkedin_url: data.links.linkedin_url,
+      github_url: data.links.github_url,
+      personal_website_url: data.links.personal_website_url,
     };
     try {
       await submitProfile(payload);
@@ -105,9 +104,6 @@ export default function SeekerFlow() {
     } catch (err) {
       if (err instanceof SubmissionError) {
         toast({ title: 'تعذّر الإرسال', description: err.message, variant: 'error' });
-        if (err.code === 'DUPLICATE') {
-          goTo(0, -1);
-        }
       } else {
         toast({ title: 'تعذّر الإرسال', description: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.', variant: 'error' });
       }
@@ -131,13 +127,13 @@ export default function SeekerFlow() {
     <FlowShell steps={STEP_TITLES} current={current} title={STEP_TITLES[current]} onBack={handleBack}>
       <AnimatePresence mode="wait" custom={direction} initial={false}>
         {current === 0 && (
-          <motion.div key="personal" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
-            <PersonalInfoStep defaultValues={data.personal} onNext={handlePersonalNext} />
+          <motion.div key="identity" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
+            <IdentityStep defaultValues={data.identity} onNext={handleIdentityNext} />
           </motion.div>
         )}
         {current === 1 && (
-          <motion.div key="preferences" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
-            <PreferencesStep defaultValues={data.preferences} onNext={handlePreferencesNext} onBack={handleBack} />
+          <motion.div key="details" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
+            <ProfessionalDetailsStep defaultValues={data.details} onNext={handleDetailsNext} onBack={handleBack} />
           </motion.div>
         )}
         {current === 2 && (
@@ -145,11 +141,11 @@ export default function SeekerFlow() {
             <LinksStep defaultValues={data.links} onNext={handleLinksNext} onBack={handleBack} />
           </motion.div>
         )}
-        {current === 3 && data.personal && data.preferences && data.links && (
+        {current === 3 && data.identity && data.details && data.links && (
           <motion.div key="review" custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={transition}>
             <ReviewStep
-              personal={data.personal}
-              preferences={data.preferences}
+              identity={data.identity}
+              details={data.details}
               links={data.links}
               onEdit={handleEdit}
               onSubmit={handleSubmit}

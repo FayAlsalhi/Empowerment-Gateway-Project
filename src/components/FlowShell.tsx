@@ -1,7 +1,30 @@
-import type { ReactNode } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Cpu } from 'lucide-react';
 import { StepIndicator } from '@/components/form/StepIndicator';
-import { cn } from '@/lib/utils';
+import { BRAND } from '@/lib/brand';
+
+/** شعار الجمعية مع بديل نصي أنيق عند تعذّر تحميل ملف الشعار. */
+function BrandMark() {
+  const [logoError, setLogoError] = useState(false);
+  return (
+    <Link to="/" aria-label={BRAND.nameAr} className="flex items-center">
+      {!logoError ? (
+        <img
+          src={BRAND.logoSrc}
+          alt={BRAND.nameAr}
+          className="h-[42px] w-[145px] object-contain object-right sm:h-[52px] sm:w-[205px]"
+          onError={() => setLogoError(true)}
+        />
+      ) : (
+        <span className="flex items-center gap-2">
+          <Cpu className="h-6 w-6 text-primary" strokeWidth={1.75} />
+          <span className="text-base font-bold text-primary">{BRAND.shortAr}</span>
+        </span>
+      )}
+    </Link>
+  );
+}
 
 /**
  * الغلاف الموحّد لكل مسارات التسجيل: هيدر بسيط بشعار الرجوع، مؤشر الخطوات،
@@ -21,19 +44,14 @@ export function FlowShell({
   onBack: () => void;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <span className="text-sm font-bold text-foreground sm:text-base">بوابة التمكين</span>
-          </div>
+    <div className="flex min-h-screen flex-col bg-secondary">
+      <header className="qt-header">
+        <div className="qt-container flex h-16 items-center justify-between sm:h-20">
+          <BrandMark />
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
           >
             رجوع
             <ArrowRight className="h-4 w-4" />
@@ -41,18 +59,14 @@ export function FlowShell({
         </div>
       </header>
 
-      <main className="container flex flex-1 flex-col py-6 sm:py-10">
+      <main className="qt-container flex flex-1 flex-col py-6 sm:py-10">
         <div className="mx-auto w-full max-w-2xl">
           <div className="mb-8">
             <StepIndicator steps={steps} current={current} />
           </div>
 
-          <div
-            className={cn(
-              'rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.04)] sm:p-8'
-            )}
-          >
-            <h1 className="mb-6 text-xl font-bold text-foreground sm:text-2xl">{title}</h1>
+          <div className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-8">
+            <h1 className="mb-6 text-xl font-bold text-primary sm:text-2xl">{title}</h1>
             {children}
           </div>
         </div>

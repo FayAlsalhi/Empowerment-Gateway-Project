@@ -15,10 +15,10 @@ export function StepIndicator({ steps, current }: { steps: string[]; current: nu
             <div className="flex flex-col items-center gap-2">
               <div
                 className={cn(
-                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors duration-300',
+                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors duration-300',
                   isCompleted && 'border-primary bg-primary text-primary-foreground',
-                  isCurrent && 'border-primary bg-background text-primary',
-                  !isCompleted && !isCurrent && 'border-border bg-background text-muted-foreground'
+                  isCurrent && 'border-accent bg-white text-accent ring-4 ring-accent/15',
+                  !isCompleted && !isCurrent && 'border-border bg-white text-muted-foreground'
                 )}
                 aria-current={isCurrent ? 'step' : undefined}
               >

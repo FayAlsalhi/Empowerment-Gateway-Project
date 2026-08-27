@@ -1,117 +1,90 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { HeartHandshake } from 'lucide-react';
+import { ArrowLeft, ArrowRight, HeartHandshake } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/form/FormField';
 import { OptionCards } from '@/components/form/OptionCards';
 import { MultiSelectChips } from '@/components/form/MultiSelectChips';
-import {
-  PARTICIPATION_TYPES,
-  EXPERT_AREAS,
-  CONTRIBUTION_TYPES,
-  TARGET_AUDIENCES,
-  DELIVERY_MODE_OPTIONS,
-} from '@/lib/constants';
+import { CONTRIBUTION_TYPES, PARTICIPATION_MODE_OPTIONS } from '@/lib/constants';
 import { expertContributionSchema, type ExpertContributionInput } from '@/schemas';
-import { SubmitBar } from './SubmitBar';
 
 interface ContributionStepProps {
-  defaultValues: Partial<ExpertContributionInput>;
-  onSubmit: (data: ExpertContributionInput) => void;
+  defaultValues?: Partial<ExpertContributionInput>;
+  onNext: (values: ExpertContributionInput) => void;
+  onBack: () => void;
 }
 
-/** الخطوة 3: طريقة المساهمة، مجالات الخبرة، والفئات المستهدفة. */
-export function ContributionStep({ defaultValues, onSubmit }: ContributionStepProps) {
+/** الخطوة 3: نوع المساهمة وطريقة المشاركة. */
+export default function ContributionStep({ defaultValues, onNext, onBack }: ContributionStepProps) {
   const {
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ExpertContributionInput>({
     resolver: zodResolver(expertContributionSchema),
     defaultValues: {
-      participation_types: [],
-      areas: [],
       contribution_types: [],
-      target_audiences: [],
+      participation_mode: '',
       ...defaultValues,
     },
   });
 
+  const submit = handleSubmit((values) => onNext(values));
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
-      <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-secondary/40 p-4">
-        <HeartHandshake className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+    <form onSubmit={submit} className="flex flex-col gap-6" noValidate>
+      <div className="flex flex-col gap-2">
+        <p className="qt-kicker">نوع المساهمة</p>
+        <h2 className="text-lg font-bold text-primary sm:text-xl">كيف تودّ أن تساهم؟</h2>
         <p className="text-sm text-muted-foreground">
-          حدّد الطريقة والمجالات التي ترغب أن تساهم بها ضمن بوابة التمكين.
+          حدّد الطريقة التي ترغب أن تساهم بها ضمن جمعية القصيم التقنية.
         </p>
       </div>
 
-      <FormField
-        label="طريقة المشاركة"
-        required
-        hint="يمكنك اختيار أكثر من طريقة"
-        error={errors.participation_types?.message}
-      >
-        <Controller
-          name="participation_types"
-          control={control}
-          render={({ field }) => (
-            <MultiSelectChips options={PARTICIPATION_TYPES} value={field.value ?? []} onChange={field.onChange} />
-          )}
-        />
-      </FormField>
+      <div className="flex items-start gap-3 rounded-card border border-border bg-secondary p-4">
+        <HeartHandshake className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+        <p className="text-sm text-muted-foreground">اختر ما يناسب وقتك وخبرتك — ويمكنك اختيار أكثر من واحد.</p>
+      </div>
 
       <FormField
-        label="مجالات خبرتك"
+        label="نوع المساهمة"
         required
-        hint="اختر مجالاً أو أضف مجالاً غير موجود في القائمة"
-        error={errors.areas?.message}
+        error={errors.contribution_types?.message}
+        hint="يمكنك اختيار أكثر من نوع"
       >
         <Controller
-          name="areas"
           control={control}
+          name="contribution_types"
           render={({ field }) => (
             <MultiSelectChips
-              options={EXPERT_AREAS}
-              value={field.value ?? []}
+              options={CONTRIBUTION_TYPES}
+              value={field.value}
               onChange={field.onChange}
               allowCustom
-              placeholder="أضف مجالاً آخر..."
+              placeholder="اكتب نوع مساهمة آخر..."
             />
           )}
         />
       </FormField>
 
-      <FormField label="نوع المساهمة" required error={errors.contribution_types?.message}>
+      <FormField label="طريقة المشاركة" required error={errors.participation_mode?.message}>
         <Controller
-          name="contribution_types"
           control={control}
+          name="participation_mode"
           render={({ field }) => (
-            <MultiSelectChips options={CONTRIBUTION_TYPES} value={field.value ?? []} onChange={field.onChange} />
+            <OptionCards options={PARTICIPATION_MODE_OPTIONS} value={field.value} onChange={field.onChange} columns={3} />
           )}
         />
       </FormField>
 
-      <FormField label="الفئة المستهدفة" required error={errors.target_audiences?.message}>
-        <Controller
-          name="target_audiences"
-          control={control}
-          render={({ field }) => (
-            <MultiSelectChips options={TARGET_AUDIENCES} value={field.value ?? []} onChange={field.onChange} />
-          )}
-        />
-      </FormField>
-
-      <FormField label="طريقة المشاركة المفضّلة" required error={errors.delivery_mode?.message}>
-        <Controller
-          name="delivery_mode"
-          control={control}
-          render={({ field }) => (
-            <OptionCards options={DELIVERY_MODE_OPTIONS} value={field.value ?? ''} onChange={field.onChange} columns={3} />
-          )}
-        />
-      </FormField>
-
-      <SubmitBar label="التالي" loading={isSubmitting} />
+      <div className="sticky bottom-0 -mx-4 mt-2 flex gap-3 border-t border-border bg-white p-4 shadow-soft sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <Button type="button" variant="outline" size="lg" onClick={onBack}>
+          <ArrowRight className="h-4 w-4" /> السابق
+        </Button>
+        <Button type="submit" size="lg" className="flex-1">
+          التالي <ArrowLeft className="h-4 w-4" />
+        </Button>
+      </div>
     </form>
   );
 }

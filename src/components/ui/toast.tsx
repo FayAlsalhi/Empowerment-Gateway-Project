@@ -40,19 +40,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={t.id}
             className={cn(
-              'flex items-start gap-3 rounded-lg border bg-background p-4 shadow-lg animate-in slide-in-from-bottom-2',
+              'flex items-start gap-3 rounded-card border border-border bg-white p-4 shadow-soft animate-in slide-in-from-bottom-2',
               t.variant === 'success' && 'border-success/30',
               t.variant === 'error' && 'border-destructive/30'
             )}
           >
-            {t.variant === 'success' && <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" />}
-            {t.variant === 'error' && <XCircle className="mt-0.5 h-5 w-5 text-destructive" />}
-            {t.variant === 'default' && <Info className="mt-0.5 h-5 w-5 text-primary" />}
+            {t.variant === 'success' && <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />}
+            {t.variant === 'error' && <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />}
+            {t.variant === 'default' && <Info className="mt-0.5 h-5 w-5 shrink-0 text-accent" />}
             <div className="flex-1">
-              <p className="text-sm font-semibold">{t.title}</p>
+              <p className="text-sm font-bold text-foreground">{t.title}</p>
               {t.description && <p className="mt-0.5 text-sm text-muted-foreground">{t.description}</p>}
             </div>
-            <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-foreground">
+            <button onClick={() => remove(t.id)} className="text-muted-foreground transition-colors hover:text-foreground">
               <X className="h-4 w-4" />
             </button>
           </div>

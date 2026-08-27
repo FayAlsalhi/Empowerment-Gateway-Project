@@ -64,11 +64,11 @@ export function MultiSelectChips({
               onClick={() => toggle(option.value)}
               aria-pressed={selected}
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200',
+                'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-colors duration-200',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 selected
-                  ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                  : 'border-border bg-card text-foreground/90 hover:border-primary/50'
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-white text-foreground/90 hover:border-primary/30'
               )}
             >
               {selected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}

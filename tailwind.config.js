@@ -10,7 +10,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Cairo', 'Tajawal', 'system-ui', 'sans-serif'],
+        // IBM Plex Sans Arabic هو الخط الظاهر فعلياً، وCairo خط الثيم
+        sans: ['"IBM Plex Sans Arabic"', 'Cairo', 'Tahoma', 'Arial', 'sans-serif'],
+      },
+      maxWidth: {
+        container: '1180px',
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -57,8 +61,21 @@ export default {
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 3px)',
+        sm: 'calc(var(--radius) - 6px)',
+        card: 'var(--radius-card)',
+        panel: 'var(--radius-panel)',
+      },
+      boxShadow: {
+        soft: 'var(--shadow-soft)',
+        showcase: 'var(--shadow-showcase)',
+        float: 'var(--shadow-float)',
+      },
+      screens: {
+        // نقاط الكسر الثلاث الفعلية في التصميم الأصلي
+        qtsm: { max: '390px' },
+        qtmd: { max: '650px' },
+        qtlg: { max: '1000px' },
       },
       keyframes: {
         'accordion-down': {

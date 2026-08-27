@@ -3,112 +3,95 @@ import { Button } from '@/components/ui/button';
 import { ReviewSection } from '@/components/form/ReviewSection';
 import {
   SAUDI_REGIONS,
-  EMPLOYMENT_STATUS_OPTIONS,
+  CONTRIBUTION_TYPES,
+  PARTICIPATION_MODE_OPTIONS,
   YEARS_OF_EXPERIENCE_OPTIONS,
   EDUCATION_LEVEL_OPTIONS,
-  PARTICIPATION_TYPES,
-  EXPERT_AREAS,
-  CONTRIBUTION_TYPES,
-  TARGET_AUDIENCES,
-  DELIVERY_MODE_OPTIONS,
+  SKILLS,
   labelFor,
+  labelsFor,
 } from '@/lib/constants';
-import type { Option } from '@/types';
-import type { ExpertFormData } from '../ExpertFlow';
-
-function listLabel(options: Option[], values: string[]): string {
-  return values.length ? values.map((v) => labelFor(options, v)).join('، ') : '—';
-}
+import type { IdentityInput, ExpertProfessionalInput, ExpertContributionInput, ExpertLinksInput } from '@/schemas';
 
 interface ReviewStepProps {
-  data: ExpertFormData;
-  isSubmitting: boolean;
-  onSubmit: () => void;
+  identity: IdentityInput;
+  professional: ExpertProfessionalInput;
+  contribution: ExpertContributionInput;
+  links: ExpertLinksInput;
   onEdit: (step: number) => void;
+  onSubmit: () => void;
+  submitting: boolean;
 }
 
-/** الخطوة 5: مراجعة نهائية لكل البيانات المجمّعة قبل الإرسال. */
-export function ReviewStep({ data, isSubmitting, onSubmit, onEdit }: ReviewStepProps) {
+/** الخطوة 5: مراجعة نهائية لكل بيانات مسار الخبير/المستشار قبل الإرسال. */
+export default function ReviewStep({
+  identity,
+  professional,
+  contribution,
+  links,
+  onEdit,
+  onSubmit,
+  submitting,
+}: ReviewStepProps) {
+  const cvExtension = links.cv_path.split('.').pop()?.toUpperCase() ?? '';
+
   return (
     <div className="flex flex-col gap-6">
       <ReviewSection
-        title="المعلومات الشخصية"
+        title="بياناتك"
         onEdit={() => onEdit(0)}
         items={[
-          { label: 'الاسم الكامل', value: data.full_name || '—' },
-          { label: 'البريد الإلكتروني', value: data.email || '—' },
-          { label: 'رقم الجوال', value: data.phone || '—' },
-          { label: 'المدينة', value: data.city || '—' },
-          { label: 'المنطقة', value: data.region ? labelFor(SAUDI_REGIONS, data.region) : '—' },
-          { label: 'العنوان المهني', value: data.professional_headline || '—' },
-          { label: 'نبذة عنك', value: data.bio || '—' },
+          { label: 'الاسم الكامل', value: identity.full_name },
+          { label: 'البريد الإلكتروني', value: identity.email },
+          { label: 'رقم الجوال', value: identity.phone },
+          { label: 'المنطقة', value: labelFor(SAUDI_REGIONS, identity.region) },
+          { label: 'نبذة عنك وخبرتك', value: identity.bio },
         ]}
       />
 
       <ReviewSection
-        title="المعلومات المهنية"
+        title="البيانات المهنية"
         onEdit={() => onEdit(1)}
         items={[
-          { label: 'المسمى الوظيفي الحالي', value: data.current_job_title || '—' },
-          { label: 'جهة العمل الحالية', value: data.current_organization || '—' },
-          { label: 'التخصص', value: data.specialization || '—' },
-          {
-            label: 'الحالة الوظيفية',
-            value: data.employment_status ? labelFor(EMPLOYMENT_STATUS_OPTIONS, data.employment_status) : '—',
-          },
-          {
-            label: 'سنوات الخبرة',
-            value: data.years_of_experience ? labelFor(YEARS_OF_EXPERIENCE_OPTIONS, data.years_of_experience) : '—',
-          },
-          {
-            label: 'المؤهل العلمي',
-            value: data.education_level ? labelFor(EDUCATION_LEVEL_OPTIONS, data.education_level) : '—',
-          },
+          { label: 'التخصص', value: professional.specialization },
+          { label: 'المسمى الوظيفي الحالي', value: professional.current_job_title },
+          { label: 'جهة العمل الحالية', value: professional.current_organization },
+          { label: 'سنوات الخبرة', value: labelFor(YEARS_OF_EXPERIENCE_OPTIONS, professional.years_of_experience) },
+          { label: 'المؤهل العلمي', value: labelFor(EDUCATION_LEVEL_OPTIONS, professional.education_level) },
+          { label: 'المهارات', value: labelsFor(SKILLS, professional.skills) },
         ]}
       />
 
       <ReviewSection
-        title="المساهمة"
+        title="نوع المساهمة"
         onEdit={() => onEdit(2)}
         items={[
-          { label: 'طريقة المشاركة', value: listLabel(PARTICIPATION_TYPES, data.participation_types ?? []) },
-          { label: 'مجالات الخبرة', value: listLabel(EXPERT_AREAS, data.areas ?? []) },
-          { label: 'نوع المساهمة', value: listLabel(CONTRIBUTION_TYPES, data.contribution_types ?? []) },
-          { label: 'الفئة المستهدفة', value: listLabel(TARGET_AUDIENCES, data.target_audiences ?? []) },
-          {
-            label: 'طريقة المشاركة المفضّلة',
-            value: data.delivery_mode ? labelFor(DELIVERY_MODE_OPTIONS, data.delivery_mode) : '—',
-          },
+          { label: 'نوع المساهمة', value: labelsFor(CONTRIBUTION_TYPES, contribution.contribution_types) },
+          { label: 'طريقة المشاركة', value: labelFor(PARTICIPATION_MODE_OPTIONS, contribution.participation_mode) },
         ]}
       />
 
       <ReviewSection
-        title="الروابط"
+        title="الروابط والملفات"
         onEdit={() => onEdit(3)}
         items={[
-          { label: 'LinkedIn', value: data.linkedin_url || '—' },
-          { label: 'الموقع الشخصي', value: data.personal_website_url || '—' },
-          { label: 'معرض الأعمال', value: data.portfolio_url || '—' },
-          { label: 'GitHub', value: data.github_url || '—' },
+          { label: 'السيرة الذاتية', value: cvExtension ? `تم رفع ملف ${cvExtension}` : 'تم رفع الملف' },
+          { label: 'LinkedIn', value: links.linkedin_url || '—' },
+          { label: 'الموقع الشخصي', value: links.personal_website_url || '—' },
         ]}
       />
 
-      <ReviewSection
-        title="السيرة الذاتية"
-        onEdit={() => onEdit(3)}
-        items={[{ label: 'الملف', value: data.cv_path ? 'تم رفع السيرة الذاتية بنجاح' : '—' }]}
-      />
-
-      <div className="sticky bottom-0 -mx-4 mt-2 flex justify-end border-t border-border/70 bg-background/95 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
-        <Button
-          type="button"
-          size="lg"
-          disabled={isSubmitting}
-          onClick={onSubmit}
-          className="h-14 w-full gap-2 text-base sm:h-12 sm:w-auto sm:min-w-[12rem]"
-        >
-          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          إرسال ملف الخبير
+      <div className="sticky bottom-0 -mx-4 mt-2 border-t border-border bg-white p-4 shadow-soft sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <Button type="button" size="lg" className="w-full" onClick={onSubmit} disabled={submitting}>
+          {submitting ? (
+            <>
+              <Loader2 className="animate-spin" /> جارٍ الإرسال...
+            </>
+          ) : (
+            <>
+              إرسال بياناتي <Send className="h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
     </div>

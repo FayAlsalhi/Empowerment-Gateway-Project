@@ -8,14 +8,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { FormField } from '@/components/form/FormField';
 import { SAUDI_REGIONS } from '@/lib/constants';
-import { volunteerPersonalInfoSchema, type VolunteerPersonalInfoInput } from '@/schemas';
+import { identitySchema, type IdentityInput } from '@/schemas';
 
-interface PersonalInfoStepProps {
-  defaultValues?: Partial<VolunteerPersonalInfoInput>;
-  onNext: (values: VolunteerPersonalInfoInput) => Promise<void>;
+interface IdentityStepProps {
+  defaultValues?: Partial<IdentityInput>;
+  onNext: (values: IdentityInput) => Promise<void>;
 }
 
-export default function PersonalInfoStep({ defaultValues, onNext }: PersonalInfoStepProps) {
+/** الخطوة 1: بياناتك — الاسم، البريد، الجوال، المنطقة، ونبذة عنك. */
+export default function IdentityStep({ defaultValues, onNext }: IdentityStepProps) {
   const [isChecking, setIsChecking] = useState(false);
 
   const {
@@ -23,16 +24,14 @@ export default function PersonalInfoStep({ defaultValues, onNext }: PersonalInfo
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<VolunteerPersonalInfoInput>({
-    resolver: zodResolver(volunteerPersonalInfoSchema),
+  } = useForm<IdentityInput>({
+    resolver: zodResolver(identitySchema),
     defaultValues: {
       full_name: '',
       email: '',
       phone: '',
-      city: '',
       region: '',
       bio: '',
-      professional_headline: '',
       ...defaultValues,
     },
   });
@@ -48,6 +47,12 @@ export default function PersonalInfoStep({ defaultValues, onNext }: PersonalInfo
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-6" noValidate>
+      <div className="flex flex-col gap-2">
+        <p className="qt-kicker">بياناتك</p>
+        <h2 className="text-lg font-bold text-primary sm:text-xl">لنتعرّف عليك</h2>
+        <p className="text-sm text-muted-foreground">معلوماتك الأساسية ونبذة تعرّفنا بك.</p>
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="الاسم الكامل" required error={errors.full_name?.message}>
           <Input placeholder="مثال: سارة العتيبي" {...register('full_name')} />
@@ -58,15 +63,12 @@ export default function PersonalInfoStep({ defaultValues, onNext }: PersonalInfo
         <FormField label="رقم الجوال" required error={errors.phone?.message}>
           <Input type="tel" dir="ltr" placeholder="0512345678" {...register('phone')} />
         </FormField>
-        <FormField label="المدينة" required error={errors.city?.message}>
-          <Input placeholder="مثال: الرياض" {...register('city')} />
-        </FormField>
         <FormField label="المنطقة" required error={errors.region?.message}>
           <Controller
             control={control}
             name="region"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select value={field.value || undefined} onValueChange={field.onChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="اختر المنطقة" />
                 </SelectTrigger>
@@ -83,11 +85,15 @@ export default function PersonalInfoStep({ defaultValues, onNext }: PersonalInfo
         </FormField>
       </div>
 
-      <FormField label="نبذة عنك" error={errors.bio?.message} hint="اختياري">
-        <Textarea rows={4} placeholder="عرّف بنفسك وباهتماماتك التطوعية..." {...register('bio')} />
+      <FormField label="نبذة عنك" required error={errors.bio?.message}>
+        <Textarea
+          rows={4}
+          placeholder="عرّفنا عن نفسك باختصار، وشاركنا المهارات أو الخبرات التي تميزك."
+          {...register('bio')}
+        />
       </FormField>
 
-      <div className="sticky bottom-0 -mx-4 mt-2 border-t border-border bg-background/95 p-4 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0">
+      <div className="sticky bottom-0 -mx-4 mt-2 border-t border-border bg-white p-4 shadow-soft sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         <Button type="submit" size="lg" className="w-full" disabled={isChecking}>
           {isChecking ? (
             <>

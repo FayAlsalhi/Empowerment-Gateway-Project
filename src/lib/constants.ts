@@ -1,72 +1,14 @@
 import type { Option } from '@/types';
 
 // ============================================================
-// خيارات مشتركة
+// مشترك
 // ============================================================
 
+/** مناطق المملكة الـ13 — لا تُجمع المدينة إطلاقاً. */
 export const SAUDI_REGIONS: Option[] = [
   'الرياض', 'مكة المكرمة', 'المدينة المنورة', 'القصيم', 'المنطقة الشرقية',
   'عسير', 'تبوك', 'حائل', 'الحدود الشمالية', 'جازان', 'نجران', 'الباحة', 'الجوف',
 ].map((r) => ({ value: r, label: r }));
-
-// ============================================================
-// مسار: أبحث عن فرصة
-// ============================================================
-
-export const CURRENT_STATUS_OPTIONS: Option[] = [
-  { value: 'university_student', label: 'طالب جامعي' },
-  { value: 'fresh_graduate', label: 'حديث تخرج' },
-  { value: 'job_seeker', label: 'باحث عن عمل' },
-  { value: 'employed_seeking', label: 'موظف وأبحث عن فرصة جديدة' },
-  { value: 'freelancer', label: 'مستقل Freelancer' },
-  { value: 'trainee', label: 'متدرب' },
-];
-
-export const OPPORTUNITY_PREFERENCES: Option[] = [
-  { value: 'full_time', label: 'وظيفة بدوام كامل' },
-  { value: 'part_time', label: 'وظيفة بدوام جزئي' },
-  { value: 'coop', label: 'تدريب تعاوني' },
-  { value: 'tamheer', label: 'تدريب تمهير' },
-  { value: 'summer_training', label: 'تدريب صيفي' },
-  { value: 'internship', label: 'Internship' },
-  { value: 'freelance', label: 'Freelance' },
-  { value: 'project_based', label: 'Project-Based' },
-  { value: 'remote', label: 'Remote Opportunity' },
-  { value: 'professional_development', label: 'تطوير مهني' },
-  { value: 'qualification_programs', label: 'برامج تأهيل' },
-  { value: 'training_programs', label: 'برامج تدريبية' },
-];
-
-export const WORK_MODE_OPTIONS: Option[] = [
-  { value: 'onsite', label: 'حضوري' },
-  { value: 'remote', label: 'عن بعد' },
-  { value: 'hybrid', label: 'هجين Hybrid' },
-  { value: 'no_preference', label: 'لا يوجد تفضيل' },
-];
-
-// ============================================================
-// مسار: أساهم بخبرتي
-// ============================================================
-
-export const EMPLOYMENT_STATUS_OPTIONS: Option[] = [
-  { value: 'employed', label: 'موظف' },
-  { value: 'freelancer', label: 'مستقل Freelancer' },
-  { value: 'business_owner', label: 'صاحب عمل' },
-  { value: 'entrepreneur', label: 'رائد أعمال' },
-  { value: 'academic', label: 'أكاديمي' },
-  { value: 'consultant', label: 'مستشار' },
-  { value: 'researcher', label: 'باحث' },
-  { value: 'unemployed', label: 'غير موظف حالياً' },
-  { value: 'other', label: 'أخرى' },
-];
-
-export const YEARS_OF_EXPERIENCE_OPTIONS: Option[] = [
-  { value: 'less_than_1', label: 'أقل من سنة' },
-  { value: '1_3', label: '1–3 سنوات' },
-  { value: '4_6', label: '4–6 سنوات' },
-  { value: '7_10', label: '7–10 سنوات' },
-  { value: 'more_than_10', label: 'أكثر من 10 سنوات' },
-];
 
 export const EDUCATION_LEVEL_OPTIONS: Option[] = [
   { value: 'high_school', label: 'ثانوي' },
@@ -77,75 +19,137 @@ export const EDUCATION_LEVEL_OPTIONS: Option[] = [
   { value: 'other', label: 'أخرى' },
 ];
 
-export const PARTICIPATION_TYPES: Option[] = [
-  { value: 'trainer', label: 'مدرب' },
-  { value: 'workshop_facilitator', label: 'مقدم ورشة' },
-  { value: 'mentor', label: 'مرشد Mentor' },
-  { value: 'consultant', label: 'مستشار' },
-  { value: 'speaker', label: 'متحدث' },
-  { value: 'judge', label: 'محكم' },
-  { value: 'specialist', label: 'خبير متخصص' },
-  { value: 'committee_member', label: 'عضو لجنة' },
+export const YEARS_OF_EXPERIENCE_OPTIONS: Option[] = [
+  { value: 'none', label: 'لا توجد خبرة' },
+  { value: 'less_than_1', label: 'أقل من سنة' },
+  { value: '1_3', label: '1–3 سنوات' },
+  { value: '4_6', label: '4–6 سنوات' },
+  { value: '7_10', label: '7–10 سنوات' },
+  { value: 'more_than_10', label: 'أكثر من 10 سنوات' },
 ];
 
-export const EXPERT_AREAS: Option[] = [
-  'الذكاء الاصطناعي', 'علوم البيانات', 'تطوير البرمجيات', 'الأمن السيبراني',
-  'ريادة الأعمال', 'إدارة المشاريع', 'إدارة المنتجات', 'التسويق',
-  'التجارة الإلكترونية', 'تطوير الأعمال', 'القيادة', 'الموارد البشرية',
-  'التصميم', 'صناعة المحتوى', 'المالية', 'أخرى',
-].map((a) => ({ value: a, label: a }));
+/** التخصصات — قائمة قابلة للبحث مع إمكانية الكتابة الحرة. */
+export const SPECIALIZATIONS: Option[] = [
+  'علوم الحاسب', 'هندسة البرمجيات', 'نظم المعلومات', 'الأمن السيبراني',
+  'الذكاء الاصطناعي', 'علوم البيانات', 'الشبكات', 'الحوسبة السحابية',
+  'هندسة الحاسب', 'الهندسة الكهربائية', 'تقنية المعلومات',
+  'تجربة وواجهة المستخدم', 'التصميم الجرافيكي', 'الوسائط المتعددة',
+  'إدارة الأعمال', 'التسويق', 'المالية', 'الإعلام والاتصال', 'أخرى',
+].map((s) => ({ value: s, label: s }));
 
-export const CONTRIBUTION_TYPES: Option[] = [
-  { value: 'training', label: 'تدريب' },
-  { value: 'mentoring', label: 'إرشاد' },
-  { value: 'consulting', label: 'استشارات' },
-  { value: 'specialized_sessions', label: 'جلسات تخصصية' },
-  { value: 'workshops', label: 'ورش عمل' },
-  { value: 'judging', label: 'تحكيم' },
-  { value: 'speaking', label: 'مشاركة كمتحدث' },
-];
+/** المهارات — منفصلة عن التخصص، متعددة الاختيار مع إضافة حرة. */
+export const SKILLS: Option[] = [
+  'React', 'Next.js', 'JavaScript', 'TypeScript', 'Python', 'Java', 'C#',
+  'Node.js', 'SQL', 'AI', 'Machine Learning', 'Data Analysis', 'Power BI',
+  'Cybersecurity', 'Cloud', 'AWS', 'Azure', 'DevOps', 'Flutter', 'Mobile Development',
+  'UI/UX', 'Figma', 'Graphic Design', 'Video Editing', 'Photography',
+  'Content Creation', 'Marketing', 'Digital Marketing', 'Project Management',
+  'Product Management', 'Business Analysis', 'Public Speaking', 'Training',
+  'Event Management', 'Translation',
+].map((s) => ({ value: s, label: s }));
 
-export const TARGET_AUDIENCES: Option[] = [
-  { value: 'children', label: 'الأطفال والناشئون' },
-  { value: 'school_students', label: 'طلاب المدارس' },
-  { value: 'university_students', label: 'طلاب الجامعات' },
-  { value: 'fresh_graduates', label: 'حديثو التخرج' },
-  { value: 'job_seekers', label: 'الباحثون عن عمل' },
-  { value: 'employees', label: 'الموظفون' },
-  { value: 'entrepreneurs', label: 'رواد الأعمال' },
-  { value: 'nonprofits', label: 'الجهات غير الربحية' },
-  { value: 'disabled', label: 'ذوو الإعاقة' },
-  { value: 'general', label: 'عامة' },
-];
-
-export const DELIVERY_MODE_OPTIONS: Option[] = [
+export const PARTICIPATION_MODE_OPTIONS: Option[] = [
   { value: 'onsite', label: 'حضوري' },
-  { value: 'remote', label: 'عن بعد' },
+  { value: 'remote', label: 'عن بُعد' },
   { value: 'both', label: 'كلاهما' },
 ];
 
 // ============================================================
-// مسار: أتطوع
+// المسار الأول: أبحث عن فرصة
+// ============================================================
+
+export const CURRENT_STATUS_OPTIONS: Option[] = [
+  { value: 'university_student', label: 'طالب جامعي' },
+  { value: 'fresh_graduate', label: 'حديث تخرج' },
+  { value: 'employed_seeking', label: 'موظف وأبحث عن فرصة أخرى' },
+  { value: 'freelancer', label: 'مستقل Freelancer' },
+  { value: 'business_owner', label: 'صاحب مشروع' },
+];
+
+export const OPPORTUNITY_TYPE_OPTIONS: Option[] = [
+  { value: 'job', label: 'وظيفة' },
+  { value: 'coop', label: 'تدريب تعاوني' },
+  { value: 'tamheer', label: 'تمهير' },
+  { value: 'professional_training', label: 'تدريب مهني' },
+  { value: 'freelance', label: 'عمل حر / مشاريع' },
+  { value: 'other', label: 'أخرى' },
+];
+
+// ============================================================
+// المسار الثاني: خبير / مستشار
+// ============================================================
+
+export const CONTRIBUTION_TYPES: Option[] = [
+  { value: 'workshops', label: 'تقديم ورش ولقاءات' },
+  { value: 'mentoring', label: 'الإرشاد Mentoring' },
+  { value: 'consulting', label: 'الاستشارات' },
+  { value: 'judging', label: 'التحكيم وتقييم المشاريع' },
+  { value: 'committees', label: 'المشاركة في لجان أو جلسات تخصصية' },
+  { value: 'other', label: 'أخرى' },
+];
+
+// ============================================================
+// المسار الثالث: التطوع
 // ============================================================
 
 export const VOLUNTEER_TYPE_OPTIONS: Option[] = [
-  { value: 'specialized', label: 'تطوع تخصصي' },
-  { value: 'operational', label: 'تطوع تشغيلي' },
-  { value: 'both', label: 'كلاهما' },
+  { value: 'technical', label: 'تطوع تخصصي تقني' },
+  { value: 'events', label: 'تنظيم وتشغيل فعاليات' },
+  { value: 'media', label: 'إعلام وصناعة محتوى' },
+  { value: 'photography', label: 'تصوير ومونتاج' },
+  { value: 'design', label: 'تصميم' },
+  { value: 'partnerships', label: 'علاقات وشراكات' },
+  { value: 'hosting', label: 'تقديم وتنسيق لقاءات' },
+  { value: 'admin_support', label: 'دعم إداري' },
+  { value: 'other', label: 'أخرى' },
 ];
 
-export const SPECIALIZED_INTERESTS: Option[] = [
-  'تدريب', 'تصميم', 'تصوير', 'صناعة محتوى', 'تقنية',
-  'تطوير', 'تسويق', 'ترجمة', 'تقديم', 'إرشاد', 'أخرى',
-].map((i) => ({ value: i, label: i }));
+export const WEEKLY_HOURS_OPTIONS: Option[] = [
+  { value: '1_3', label: '1–3 ساعات' },
+  { value: '4_6', label: '4–6 ساعات' },
+  { value: '7_10', label: '7–10 ساعات' },
+  { value: 'more_than_10', label: 'أكثر من 10 ساعات' },
+];
 
-export const OPERATIONAL_INTERESTS: Option[] = [
-  'تنظيم', 'استقبال', 'تسجيل', 'تنسيق', 'دعم فعاليات',
-  'ضيافة', 'لوجستيات', 'توثيق', 'أخرى',
-].map((i) => ({ value: i, label: i }));
+export const AVAILABILITY_TIMES: Option[] = [
+  { value: 'weekday_morning', label: 'أيام الأسبوع صباحاً' },
+  { value: 'weekday_evening', label: 'أيام الأسبوع مساءً' },
+  { value: 'weekend', label: 'نهاية الأسبوع' },
+  { value: 'flexible', label: 'مرن' },
+];
+
+export const HAS_VOLUNTEERED_OPTIONS: Option[] = [
+  { value: 'true', label: 'نعم، سبق لي التطوع' },
+  { value: 'false', label: 'لا، هذه أول مرة' },
+];
 
 // ============================================================
-// نصوص شاشة النجاح لكل مسار
+// الحالة الداخلية (لوحة الإدارة فقط — لا تظهر للمستخدم)
+// ============================================================
+
+export const INTERNAL_STATUS_OPTIONS: Option[] = [
+  { value: 'new', label: 'جديد' },
+  { value: 'reviewed', label: 'تمت المراجعة' },
+  { value: 'shortlisted', label: 'مرشح' },
+  { value: 'contacted', label: 'تم التواصل' },
+  { value: 'matched', label: 'تمت المطابقة' },
+  { value: 'archived', label: 'مؤرشف' },
+];
+
+export const INTERNAL_STATUS_VARIANT: Record<
+  string,
+  'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'accent'
+> = {
+  new: 'secondary',
+  reviewed: 'default',
+  shortlisted: 'accent',
+  contacted: 'warning',
+  matched: 'success',
+  archived: 'destructive',
+};
+
+// ============================================================
+// رسائل النجاح — قصيرة وحديثة
 // ============================================================
 
 export const SUCCESS_MESSAGES: Record<
@@ -153,23 +157,29 @@ export const SUCCESS_MESSAGES: Record<
   { title: string; message: string }
 > = {
   opportunity_seeker: {
-    title: 'أهلاً بك في بوابة التمكين',
+    title: 'تم تسجيلك بنجاح ✨',
     message:
-      'تم استلام ملفك بنجاح. أصبحت الآن ضمن قاعدة الكفاءات في بوابة التمكين، وسنتواصل معك عند وجود فرصة مناسبة لاهتماماتك المهنية.',
+      'تمت إضافة بياناتك إلى مجتمع المواهب لدى جمعية القصيم التقنية، وقد نتواصل معك عند توفر فرصة تتناسب مع ملفك.',
   },
   expert: {
-    title: 'شكراً لمشاركة خبرتك معنا',
+    title: 'تم تسجيلك بنجاح ✨',
     message:
-      'تم تسجيل ملفك ضمن شبكة خبراء بوابة التمكين، وسنتواصل معك عند وجود فرص تدريب أو إرشاد أو استشارات مناسبة لخبرتك.',
+      'شكراً لمشاركتك خبراتك معنا. تم استلام بياناتك، وقد نتواصل معك عند وجود برنامج أو مشاركة تتناسب مع خبرتك.',
   },
   volunteer: {
-    title: 'أهلاً بك ضمن مجتمع المتطوعين',
+    title: 'تم تسجيلك بنجاح ✨',
     message:
-      'تم تسجيل بياناتك بنجاح، وسنتواصل معك عند توفر فرص تطوعية مناسبة.',
+      'يسعدنا انضمامك إلى مجتمع متطوعي جمعية القصيم التقنية. تم استلام بياناتك وسنتواصل معك عند وجود فرصة تطوعية مناسبة.',
   },
 };
 
-/** البحث عن التسمية العربية لقيمة مخزّنة. */
+/** التسمية العربية لقيمة مخزّنة. */
 export function labelFor(options: Option[], value: string): string {
   return options.find((o) => o.value === value)?.label ?? value;
+}
+
+/** تسميات متعددة مفصولة. */
+export function labelsFor(options: Option[], values: string[] | null | undefined): string {
+  if (!values || values.length === 0) return '—';
+  return values.map((v) => labelFor(options, v)).join(' · ');
 }

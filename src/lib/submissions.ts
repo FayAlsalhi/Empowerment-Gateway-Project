@@ -1,9 +1,8 @@
 import { supabase } from '@/lib/supabase';
-import type { ProfileType, SubmissionPayload } from '@/types';
+import type { SubmissionPayload } from '@/types';
 
 export const CV_BUCKET = 'cvs';
 const MAX_CV_BYTES = 5 * 1024 * 1024; // 5MB
-const ALLOWED_CV_EXTENSIONS = ['pdf', 'doc', 'docx'];
 
 /** خطأ يحمل رسالة عربية جاهزة للعرض. */
 export class SubmissionError extends Error {
@@ -14,25 +13,28 @@ export class SubmissionError extends Error {
 }
 
 /**
- * رفع السيرة الذاتية إلى حاوية خاصة.
- * ترجع مسار التخزين (وليس رابطاً) — الحاوية غير عامة.
+ * رفع السيرة الذاتية (PDF فقط) إلى حاوية خاصة.
+ * ترجع مسار التخزين — الحاوية غير عامة ولا يمكن قراءتها من الواجهة.
  */
 export async function uploadCv(file: File): Promise<string> {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
 
-  if (!ALLOWED_CV_EXTENSIONS.includes(ext)) {
-    throw new SubmissionError('صيغة الملف غير مدعومة. يُقبل PDF أو DOC أو DOCX فقط.');
+  if (ext !== 'pdf' || file.type !== 'application/pdf') {
+    throw new SubmissionError('يُقبل ملف PDF فقط. يرجى تحويل الملف ثم إعادة الرفع.');
   }
   if (file.size > MAX_CV_BYTES) {
     throw new SubmissionError('حجم الملف يتجاوز 5 ميجابايت. يرجى رفع ملف أصغر.');
   }
+  if (file.size === 0) {
+    throw new SubmissionError('الملف فارغ. يرجى اختيار ملف صحيح.');
+  }
 
-  // مجلد عشوائي لكل رفع حتى لا يمكن تخمين مسارات الآخرين
-  const path = `${crypto.randomUUID()}/${Date.now()}.${ext}`;
+  // اسم فريد لكل ملف حتى لا تتصادم الأسماء ولا يمكن تخمين مسارات الآخرين
+  const path = `${crypto.randomUUID()}/${Date.now()}.pdf`;
 
   const { error } = await supabase.storage
     .from(CV_BUCKET)
-    .upload(path, file, { cacheControl: '3600', upsert: false });
+    .upload(path, file, { cacheControl: '3600', upsert: false, contentType: 'application/pdf' });
 
   if (error) {
     throw new SubmissionError('تعذّر رفع السيرة الذاتية. يرجى المحاولة مرة أخرى.');
@@ -40,33 +42,28 @@ export async function uploadCv(file: File): Promise<string> {
   return path;
 }
 
-/** حذف ملف تم رفعه (يُستخدم عند استبدال الملف قبل الإرسال). */
+/** حذف ملف مرفوع (عند استبداله قبل الإرسال). */
 export async function removeCv(path: string): Promise<void> {
   await supabase.storage.from(CV_BUCKET).remove([path]);
 }
 
 /**
- * فحص ما إذا كان الشخص مسجلاً مسبقاً في نفس المسار.
- * تمر عبر RPC آمنة ترجع boolean فقط دون كشف أي بيانات.
+ * إرسال بريد الترحيب. يعمل على الخادم (Edge Function) بالكامل —
+ * لا تُمرَّر أي بيانات شخصية من المتصفح، فقط معرّف الملف.
+ * الفشل هنا لا يُبطل التسجيل.
  */
-export async function checkDuplicate(
-  email: string,
-  phone: string,
-  profileType: ProfileType
-): Promise<boolean> {
-  const { data, error } = await supabase.rpc('check_profile_exists', {
-    p_email: email,
-    p_phone: phone,
-    p_type: profileType,
-  });
-
-  // لا نمنع الإرسال بسبب فشل الفحص — الدالة نفسها تتحقق مرة أخرى عند الحفظ
-  if (error) return false;
-  return Boolean(data);
+async function sendWelcomeEmail(profileId: string): Promise<void> {
+  try {
+    await supabase.functions.invoke('send-welcome-email', {
+      body: { profile_id: profileId },
+    });
+  } catch {
+    /* البريد إضافة، وليس شرطاً لنجاح التسجيل */
+  }
 }
 
 /**
- * حفظ الملف كاملاً في معاملة واحدة عبر RPC.
+ * حفظ الملف كاملاً في معاملة واحدة عبر RPC، ثم إرسال بريد الترحيب.
  * ترجع معرّف الملف الجديد.
  */
 export async function submitProfile(payload: SubmissionPayload): Promise<string> {
@@ -75,14 +72,10 @@ export async function submitProfile(payload: SubmissionPayload): Promise<string>
   });
 
   if (error) {
-    if (error.message.includes('DUPLICATE_PROFILE')) {
-      throw new SubmissionError(
-        'يبدو أنك مسجّل مسبقاً بهذا البريد أو رقم الجوال في هذا المسار.',
-        'DUPLICATE'
-      );
-    }
     throw new SubmissionError('تعذّر حفظ بياناتك. يرجى المحاولة مرة أخرى.');
   }
 
-  return data as string;
+  const profileId = data as string;
+  void sendWelcomeEmail(profileId);
+  return profileId;
 }

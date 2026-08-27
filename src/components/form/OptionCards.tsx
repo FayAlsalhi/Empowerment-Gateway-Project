@@ -38,19 +38,18 @@ export function OptionCards({
               }
             }}
             className={cn(
-              'relative flex min-h-[3.25rem] cursor-pointer select-none items-center justify-between gap-3 rounded-2xl border bg-card px-4 py-3.5 text-sm font-medium transition-all duration-200',
-              'hover:border-primary/50 hover:shadow-sm',
+              'qt-lift relative flex min-h-[3.25rem] cursor-pointer select-none items-center justify-between gap-3 rounded-card border bg-white px-4 py-3.5 text-sm font-semibold',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               selected
-                ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary'
-                : 'border-border text-foreground/90'
+                ? 'border-primary bg-accent/10 text-foreground'
+                : 'border-border text-foreground/90 hover:border-primary/30'
             )}
           >
             <span>{option.label}</span>
             <span
               className={cn(
                 'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200',
-                selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'
+                selected ? 'border-accent bg-accent text-white' : 'border-border bg-white'
               )}
             >
               {selected && <Check className="h-3 w-3" strokeWidth={3} />}

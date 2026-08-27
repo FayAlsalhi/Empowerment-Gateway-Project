@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 export function PageLoader() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center gap-3 bg-background">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <Loader2 className="h-8 w-8 animate-spin text-accent" />
       <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
     </div>
   );
@@ -20,7 +20,7 @@ export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
         <div
           key={i}
           className={cn(
-            'h-16 w-full animate-pulse rounded-2xl bg-secondary/70',
+            'h-16 w-full animate-pulse rounded-card bg-secondary',
             i % 2 === 1 && 'w-11/12'
           )}
         />
@@ -38,7 +38,7 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/20 bg-destructive/5 px-6 py-12 text-center">
+    <div className="flex w-full flex-col items-center justify-center gap-4 rounded-card border border-destructive/20 bg-destructive/5 px-6 py-12 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10">
         <AlertCircle className="h-7 w-7 text-destructive" />
       </div>

@@ -8,9 +8,11 @@ const HomePage = lazy(() => import('@/pages/HomePage'));
 const SeekerFlow = lazy(() => import('@/flows/opportunity-seeker/SeekerFlow'));
 const ExpertFlow = lazy(() => import('@/flows/expert/ExpertFlow'));
 const VolunteerFlow = lazy(() => import('@/flows/volunteer/VolunteerFlow'));
+const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
-const SPLASH_SEEN_KEY = 'tamkeen_splash_seen';
+const SPLASH_SEEN_KEY = 'qassim_splash_seen';
 
 // التصفح الخاص في Safari يمنع sessionStorage ويرمي استثناءً،
 // فنعزله حتى لا يُسقط التطبيق كاملاً.
@@ -25,24 +27,23 @@ function safeSessionSet(key: string, value: string): void {
   try {
     sessionStorage.setItem(key, value);
   } catch {
-    /* تجاهل — العرض المتكرر لشاشة البداية أهون من تعطّل الموقع */
+    /* تجاهل */
   }
 }
 
 export default function App() {
   const location = useLocation();
-  // تُعرض شاشة البداية مرة واحدة لكل جلسة تصفح
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   const [showSplash, setShowSplash] = useState(
-    () => safeSessionGet(SPLASH_SEEN_KEY) !== '1'
+    () => !isAdminRoute && safeSessionGet(SPLASH_SEEN_KEY) !== '1'
   );
 
   useEffect(() => {
     if (!showSplash) safeSessionSet(SPLASH_SEEN_KEY, '1');
   }, [showSplash]);
 
-  if (showSplash) {
-    return <SplashScreen onDone={() => setShowSplash(false)} />;
-  }
+  if (showSplash) return <SplashScreen onDone={() => setShowSplash(false)} />;
 
   return (
     <Suspense fallback={<PageLoader />}>
@@ -52,6 +53,8 @@ export default function App() {
           <Route path="/opportunity-seeker" element={<SeekerFlow />} />
           <Route path="/expert" element={<ExpertFlow />} />
           <Route path="/volunteer" element={<VolunteerFlow />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AnimatePresence>

@@ -11,3 +11,7 @@ dist-ssr
 *.log
 supabase/.branches
 supabase/.temp
+
+# ملفات مؤقتة
+logo-base64.txt
+email-preview.html
