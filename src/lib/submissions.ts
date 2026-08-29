@@ -37,6 +37,13 @@ export async function uploadCv(file: File): Promise<string> {
     .upload(path, file, { cacheControl: '3600', upsert: false, contentType: 'application/pdf' });
 
   if (error) {
+    // eslint-disable-next-line no-console
+    console.error('[uploadCv] فشل رفع السيرة الذاتية:', {
+      message: error.message,
+      bucket: CV_BUCKET,
+      path,
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+    });
     throw new SubmissionError('تعذّر رفع السيرة الذاتية. يرجى المحاولة مرة أخرى.');
   }
   return path;
@@ -72,7 +79,28 @@ export async function submitProfile(payload: SubmissionPayload): Promise<string>
   });
 
   if (error) {
-    throw new SubmissionError('تعذّر حفظ بياناتك. يرجى المحاولة مرة أخرى.');
+    // اطبع السبب الحقيقي كاملاً — الرسالة العامة وحدها تُخفي أخطاء الإعداد
+    // (عمود NOT NULL مفقود، سياسة RLS، ترحيل لم يُنفَّذ… إلخ)
+    // eslint-disable-next-line no-console
+    console.error('[submit_profile] فشل الحفظ:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+      payload,
+    });
+
+    // 23502 = انتهاك NOT NULL · 42P01 = جدول غير موجود · 42883 = دالة غير موجودة
+    const setupCodes = ['23502', '42P01', '42883', '42703'];
+    const isSetupIssue = setupCodes.includes(error.code ?? '');
+
+    throw new SubmissionError(
+      isSetupIssue
+        ? 'إعدادات قاعدة البيانات غير مكتملة. يرجى إبلاغ فريق الجمعية.'
+        : 'تعذّر حفظ بياناتك. يرجى المحاولة مرة أخرى.',
+      error.code
+    );
   }
 
   const profileId = data as string;

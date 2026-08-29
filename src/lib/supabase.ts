@@ -7,9 +7,20 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 if (!isSupabaseConfigured) {
   // eslint-disable-next-line no-console
-  console.warn(
-    '[بوابة التمكين] لم يتم ضبط متغيرات Supabase. انسخ .env.example إلى .env واملأ VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY.'
+  console.error(
+    '%c[بوابة التمكين] متغيّرات Supabase غير مضبوطة!',
+    'color:#fff;background:#c00;padding:2px 6px;border-radius:3px;font-weight:bold',
+    [
+      '',
+      'النسخة المبنية لا تحتوي VITE_SUPABASE_URL أو VITE_SUPABASE_ANON_KEY.',
+      'هذه القيم تُدمج وقت البناء (npm run build) وليس وقت التشغيل،',
+      'فتأكد من وجود ملف .env قبل البناء ثم أعد رفع مجلد dist.',
+    ].join('\n')
   );
+} else {
+  // طباعة الرابط تكشف فوراً ما إذا بُني الموقع بمفاتيح مشروع خاطئ
+  // eslint-disable-next-line no-console
+  console.info('[بوابة التمكين] Supabase:', supabaseUrl);
 }
 
 // A safe fallback keeps the app rendering (landing page, etc.) even before env is set.
