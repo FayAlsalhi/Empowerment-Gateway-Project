@@ -38,8 +38,8 @@ export interface SeekerPayload extends BaseInfo {
   target_job_title: string;
   years_of_experience: string;
   opportunity_preferences: string[];
-  cv_path: string;
-  linkedin_url: string;
+  cv_path?: string;
+  linkedin_url?: string;
   github_url?: string;
   personal_website_url?: string;
 }
@@ -54,8 +54,8 @@ export interface ExpertPayload extends BaseInfo {
   years_of_experience: string;
   education_level: string;
   participation_mode: ParticipationMode;
-  cv_path: string;
-  linkedin_url: string;
+  cv_path?: string;
+  linkedin_url?: string;
   personal_website_url?: string;
 }
 
@@ -71,7 +71,7 @@ export interface VolunteerPayload extends BaseInfo {
   participation_mode?: ParticipationMode;
   what_can_offer: string;
   /** LinkedIn إجباري في كل المسارات */
-  linkedin_url: string;
+  linkedin_url?: string;
   /** السيرة الذاتية اختيارية في مسار التطوع فقط */
   cv_path?: string;
   github_url?: string;

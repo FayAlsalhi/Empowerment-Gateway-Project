@@ -12,12 +12,13 @@ const optionalUrl = (message: string) =>
     .or(z.literal(''))
     .refine((v) => !v || /^https?:\/\/.+\..+/.test(v), { message });
 
-/** LinkedIn إجباري في المسارات الثلاثة. */
-const requiredLinkedin = z
+/** LinkedIn اختياري في المسارات الثلاثة — يُتحقَّق منه فقط إذا كُتب. */
+const optionalLinkedin = z
   .string()
   .trim()
-  .min(1, 'رابط LinkedIn مطلوب')
-  .refine((v) => /^https?:\/\/([\w-]+\.)?linkedin\.com\/.+/i.test(v), {
+  .optional()
+  .or(z.literal(''))
+  .refine((v) => !v || /^https?:\/\/([\w-]+\.)?linkedin\.com\/.+/i.test(v), {
     message: 'يرجى إدخال رابط LinkedIn صحيح (مثال: https://linkedin.com/in/username)',
   });
 
@@ -76,8 +77,8 @@ export const seekerDetailsSchema = z.object({
 export type SeekerDetailsInput = z.infer<typeof seekerDetailsSchema>;
 
 export const seekerLinksSchema = z.object({
-  cv_path: z.string().min(1, 'يرجى رفع السيرة الذاتية'),
-  linkedin_url: requiredLinkedin,
+  cv_path: z.string().optional().or(z.literal('')),
+  linkedin_url: optionalLinkedin,
   github_url: optionalUrl('يرجى إدخال رابط GitHub صحيح'),
   personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),
 });
@@ -107,8 +108,8 @@ export const expertContributionSchema = z.object({
 export type ExpertContributionInput = z.infer<typeof expertContributionSchema>;
 
 export const expertLinksSchema = z.object({
-  cv_path: z.string().min(1, 'يرجى رفع السيرة الذاتية'),
-  linkedin_url: requiredLinkedin,
+  cv_path: z.string().optional().or(z.literal('')),
+  linkedin_url: optionalLinkedin,
   personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),
 });
 export type ExpertLinksInput = z.infer<typeof expertLinksSchema>;
@@ -141,7 +142,7 @@ export type VolunteerDetailsInput = z.infer<typeof volunteerDetailsSchema>;
 
 /** في مسار التطوع: LinkedIn إجباري والسيرة الذاتية اختيارية. */
 export const volunteerLinksSchema = z.object({
-  linkedin_url: requiredLinkedin,
+  linkedin_url: optionalLinkedin,
   cv_path: z.string().optional().or(z.literal('')),
   github_url: optionalUrl('يرجى إدخال رابط GitHub صحيح'),
   personal_website_url: optionalUrl('يرجى إدخال رابط صحيح للموقع الشخصي'),

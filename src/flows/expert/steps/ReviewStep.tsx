@@ -33,7 +33,7 @@ export default function ReviewStep({
   onSubmit,
   submitting,
 }: ReviewStepProps) {
-  const cvExtension = links.cv_path.split('.').pop()?.toUpperCase() ?? '';
+  const cvExtension = links.cv_path?.split('.').pop()?.toUpperCase() ?? '';
 
   return (
     <div className="flex flex-col gap-6">

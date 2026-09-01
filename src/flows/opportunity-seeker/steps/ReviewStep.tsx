@@ -24,7 +24,7 @@ interface ReviewStepProps {
 
 /** الخطوة 4: مراجعة نهائية لكل بيانات مسار الباحث عن فرصة قبل الإرسال. */
 export default function ReviewStep({ identity, details, links, onEdit, onSubmit, submitting }: ReviewStepProps) {
-  const cvExtension = links.cv_path.split('.').pop()?.toUpperCase() ?? '';
+  const cvExtension = links.cv_path?.split('.').pop()?.toUpperCase() ?? '';
 
   return (
     <div className="flex flex-col gap-6">

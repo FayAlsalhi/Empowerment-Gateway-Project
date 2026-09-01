@@ -41,7 +41,7 @@ export default function LinksStep({ defaultValues, onNext, onBack }: LinksStepPr
         <p className="text-sm text-muted-foreground">رابط LinkedIn مطلوب، والسيرة الذاتية اختيارية هنا.</p>
       </div>
 
-      <FormField label="رابط LinkedIn" required error={errors.linkedin_url?.message}>
+      <FormField label="رابط LinkedIn" hint="اختياري" error={errors.linkedin_url?.message}>
         <Input dir="ltr" placeholder="https://linkedin.com/in/username" {...register('linkedin_url')} />
       </FormField>
 

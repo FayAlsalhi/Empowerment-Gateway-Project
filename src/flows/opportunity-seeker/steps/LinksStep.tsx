@@ -51,7 +51,7 @@ export default function LinksStep({ defaultValues, onNext, onBack }: LinksStepPr
           </p>
         </div>
 
-        <FormField label="السيرة الذاتية" required error={errors.cv_path?.message} hint="ملف PDF حتى 5 ميجابايت">
+        <FormField label="السيرة الذاتية" error={errors.cv_path?.message} hint="اختياري — ملف PDF حتى 5 ميجابايت">
           <Controller
             control={control}
             name="cv_path"
@@ -62,7 +62,7 @@ export default function LinksStep({ defaultValues, onNext, onBack }: LinksStepPr
         </FormField>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormField label="رابط LinkedIn" required error={errors.linkedin_url?.message}>
+          <FormField label="رابط LinkedIn" hint="اختياري" error={errors.linkedin_url?.message}>
             <Input dir="ltr" placeholder="https://linkedin.com/in/username" {...register('linkedin_url')} />
           </FormField>
           <FormField label="رابط GitHub" error={errors.github_url?.message} hint="اختياري">
