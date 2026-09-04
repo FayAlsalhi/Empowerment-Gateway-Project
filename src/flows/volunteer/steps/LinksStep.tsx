@@ -38,7 +38,7 @@ export default function LinksStep({ defaultValues, onNext, onBack }: LinksStepPr
       <div className="flex flex-col gap-2">
         <p className="qt-kicker">الروابط والملفات</p>
         <h2 className="text-lg font-bold text-primary sm:text-xl">روابطك وملفاتك</h2>
-        <p className="text-sm text-muted-foreground">رابط LinkedIn مطلوب، والسيرة الذاتية اختيارية هنا.</p>
+        <p className="text-sm text-muted-foreground">كلها اختيارية — أضف ما يعرّفنا بك أكثر.</p>
       </div>
 
       <FormField label="رابط LinkedIn" hint="اختياري" error={errors.linkedin_url?.message}>

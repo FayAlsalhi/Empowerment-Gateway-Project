@@ -47,7 +47,7 @@ export default function LinksStep({ defaultValues, onNext, onBack }: LinksStepPr
         <div className="flex items-start gap-3">
           <Link2 className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
           <p className="text-sm text-muted-foreground">
-            سيرتك الذاتية ورابط LinkedIn مطلوبان حتى نتمكّن من التعرّف على مسارك المهني.
+            كلها اختيارية — أضف ما يساعدنا على التعرّف أكثر على مسارك المهني.
           </p>
         </div>
 
